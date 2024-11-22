@@ -7,6 +7,7 @@ import { ApiResponse } from "../utils/apiResponse.js";
 const generateAccessAndRefreshTokens = async (userId) => {
   try {
     const user = await User.findById(userId);
+    console.log(user, "user");
     const accessToken = user.generateAccessToken();
     const refreshToken = user.generateRefreshToken();
 
@@ -35,7 +36,6 @@ const registerUser = asyncHandler(async (req, res) => {
   // return res
 
   const { fullName, email, username, password } = req.body;
-  // console.log("body: ", req.body);
 
   if (
     [fullName, email, username, password].some((field) => field?.trim() === "")
@@ -51,8 +51,6 @@ const registerUser = asyncHandler(async (req, res) => {
     throw new ApiError(409, "User with email or username already exists");
   }
 
-  // console.log(req.files);
-
   const avatarLocalPath = req.files?.avatar[0]?.path;
   // const coverImageLocalPath = req.files?.coverImage[0]?.path;
 
@@ -64,7 +62,6 @@ const registerUser = asyncHandler(async (req, res) => {
   ) {
     coverImageLocalPath = req.files?.coverImage[0]?.path;
   }
-
   if (!avatarLocalPath) {
     throw new ApiError(400, "Avatar file is required");
   }
@@ -108,7 +105,7 @@ const loginUser = asyncHandler(async (req, res) => {
 
   const { email, username, password } = req.body;
 
-  if (!username || !email) {
+  if (!username && !email) {
     throw new ApiError(400, "username or password is required");
   }
 
@@ -129,6 +126,8 @@ const loginUser = asyncHandler(async (req, res) => {
   const { accessToken, refreshToken } = await generateAccessAndRefreshTokens(
     user._id
   );
+
+  console.log(accessToken, refreshToken, "uyuyu");
 
   const loggedInUser = await User.findById(user._id).select(
     "-password -refreshToken"
